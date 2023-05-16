@@ -27,6 +27,7 @@ type userHandler struct {
 	store *datastore
 }
 
+// g
 func (h *userHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 	switch {
