@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var db *sql.DB
@@ -35,16 +36,16 @@ func main() {
 	// Call to listAll
 	stds, err := listAll()
 	if err != nil {
-		fmt.Println("some error")
+		fmt.Println("some error in listAll")
 	} else {
 		fmt.Println(stds)
 	}
 
 	// Call to addStudent
 	upStudent := Student{
-		Name:  "Ron Ron",
-		Email: "ron@gmail.com",
-		Age:   21,
+		Name:  "krish",
+		Email: "krish3@gmail.com",
+		Age:   24,
 	}
 
 	lastId, err := addStudent(upStudent)
@@ -53,17 +54,17 @@ func main() {
 	}
 
 	stds, err = listAll()
-	if err != nil {
-		fmt.Println("some error")
-	} else {
+	if err == nil {
 		fmt.Println(stds)
+	} else {
+		fmt.Println("some error")
 	}
 
 	// Call to updateStudent
 	newStudent := Student{
 		Name:  "Ron Ron",
 		Email: "ron@gmail.com",
-		Age:   21,
+		Age:   24,
 	}
 	lastId2, err := updateStudent(1, newStudent)
 	if err == nil {
@@ -78,7 +79,13 @@ func main() {
 	}
 
 	// Call to deleteStudent
-
+	_, err = deleteStudent(3)
+	if err != nil {
+		fmt.Println("some error")
+	} else {
+		stds, err = listAll()
+		fmt.Println(stds)
+	}
 }
 
 type Student struct {
@@ -90,10 +97,11 @@ type Student struct {
 
 func listAll() ([]Student, error) {
 	var students []Student
-	rows, err := db.Query("select * from students")
+	rows, err := db.Query("select * from student;")
 	if err != nil {
 		return nil, fmt.Errorf("error in query all student: %v", err)
 	}
+	fmt.Printf("success in fetching all")
 	defer rows.Close()
 	// loop through rows using scans to assign record to slice
 	for rows.Next() {
@@ -107,6 +115,7 @@ func listAll() ([]Student, error) {
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error in query all student: %v", err)
 	}
+	fmt.Printf("students %v", students)
 	return students, nil
 
 }
@@ -131,6 +140,18 @@ func updateStudent(stdId int, std Student) (int64, error) {
 	id, err := result.RowsAffected()
 	if err != nil {
 		return 0, fmt.Errorf("update student: %v", err)
+	}
+	return id, nil
+}
+
+func deleteStudent(stdId int) (int64, error) {
+	result, err := db.Exec("delete from student where id=?", stdId)
+	if err != nil {
+		return 0, fmt.Errorf("delete student: %v", err)
+	}
+	id, err := result.RowsAffected()
+	if err != nil {
+		return 0, fmt.Errorf("delete student: %v", err)
 	}
 	return id, nil
 }
